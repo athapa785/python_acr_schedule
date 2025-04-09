@@ -1,0 +1,170 @@
+.roster-view {
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+  }
+  
+  .week-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  
+  .week-header h2 {
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 1.8rem;
+  }
+  
+  .shift-block {
+    margin-bottom: 30px;
+    padding: 10px 0;
+  }
+  
+  .shift-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+  }
+  
+  /* Colored backgrounds for specific rows */
+  .header-row:nth-child(3) {
+    background-color: rgba(144, 238, 144, 0.4); /* Light green with transparency */
+  }
+  
+  .header-row:nth-child(4),
+  .header-row:nth-child(5),
+  .header-row:nth-child(6) {
+    background-color: rgba(144, 238, 144, 0.2); /* Lighter green with transparency */
+  }
+  
+  .shift-title {
+    font-size: 1.3rem;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .shift-header {
+    font-size: 1.4rem;
+    color: #555;
+    margin-bottom: 10px;
+    padding-left: 5px;
+  }
+  
+  .shift-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .shift-row,
+  .header-row {
+    display: flex;
+    gap: 10px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .header-row {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+  
+  .header-cell {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .shift-row:last-child {
+    border-bottom: none;
+  }
+  
+  .cell {
+    flex: 1;
+    padding: 6px 8px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+  }
+  
+  .cell:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .cell-content {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .shift-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #222;
+  }
+  
+  .comment-indicator {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    color: #cc0000;
+    font-size: 16px;
+  }
+  
+  .comment-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fffbea;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #e6d292;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+    white-space: normal;
+    z-index: 10;
+    margin-top: 4px;
+    min-width: 150px;
+    max-width: 300px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .block-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+  }
+  
+  .shift-divider {
+    border: none;
+    border-top: 1px dashed #aaa;
+    margin: 8px 0;
+  }
+  
+  .date-range {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .debug-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 14px;
+  }
+  
+  .debug-info p {
+    margin: 5px 0;
+  }
