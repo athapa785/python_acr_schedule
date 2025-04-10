@@ -22,7 +22,7 @@ function Pagination({ currentPage, totalPages, onPrevious, onNext }) {
           →
         </button>
       </div>
-      <span className="page-info">{currentPage} of {totalPages}</span>
+
     </div>
   );
 }

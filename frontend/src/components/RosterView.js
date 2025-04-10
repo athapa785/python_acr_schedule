@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/RosterView.css';
 
 function RosterView({ sheet, currentWeekIndex = 0 }) {
-  // Display all columns for the full week (Monday through Sunday)
-  const displayColCount = 9; // Increased to show all days plus the first column
+  // Display columns for the full week (Monday through Sunday), excluding the first column
+  const displayColCount = 8; // 7 days plus one less to skip the first column
   const [visibleComment, setVisibleComment] = useState(null);
 
   // For this specific Excel format, we'll create a custom grouping function
@@ -396,22 +396,31 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
         visibleComment.blockIndex === blockIndex && 
         visibleComment.rowIndex === rowIndex && 
         visibleComment.cellIndex === cellIndex) {
+      // Close the tooltip if clicking the same cell
       setVisibleComment(null);
     } else {
-      // Otherwise, show the comment for this cell
-      setVisibleComment({
-        blockIndex,
-        rowIndex,
-        cellIndex,
-        comment
-      });
+      // First clear any existing tooltip
+      setVisibleComment(null);
+      
+      // Then set the new tooltip after a very brief delay to ensure React has time to clear the previous one
+      setTimeout(() => {
+        setVisibleComment({
+          blockIndex,
+          rowIndex,
+          cellIndex,
+          comment
+        });
+      }, 10);
     }
   };
   
   // Function to close the comment tooltip when clicking elsewhere
   const handleOutsideClick = (e) => {
-    // Only close if we clicked outside a cell with a comment indicator
-    if (visibleComment && !e.target.closest('.comment-indicator')) {
+    // Close tooltip if we clicked outside a comment indicator, outside the tooltip, and outside the cell with comment
+    if (visibleComment && 
+        !e.target.closest('.comment-indicator') && 
+        !e.target.closest('.comment-tooltip') &&
+        !e.target.closest('.cell-with-comment')) {
       setVisibleComment(null);
     }
   };
@@ -419,10 +428,14 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
   // Add the event listener for outside clicks when the component mounts
   React.useEffect(() => {
     document.addEventListener('click', handleOutsideClick);
+    
+    // Return cleanup function
     return () => {
       document.removeEventListener('click', handleOutsideClick);
     };
-  }, []);
+  }, [visibleComment]);
+  
+
 
   return (
     <div className="roster-view">
@@ -441,7 +454,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                 {/* Display the header rows first */}
                 {block.headerRows.map((row, headerRowIndex) => (
                   <div key={`header-${headerRowIndex}`} className="header-row">
-                    {row.slice(0, displayColCount).map((cell, cellIndex) => {
+                    {row.slice(1, displayColCount + 1).map((cell, cellIndex) => {
                       let cellValue = '';
                       let comment = '';
                       if (cell && typeof cell === 'object' && 'value' in cell) {
@@ -464,14 +477,16 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                       // Don't skip any cells as requested
                       // Keep all columns including the first one
                       
+                      const commentPreview = comment ? comment.substring(0, 15) + (comment.length > 15 ? '...' : '') : '';
                       return (
                         <div 
                           key={cellIndex} 
-                          className="cell header-cell" 
+                          className={`cell header-cell ${comment ? 'cell-with-comment' : ''}`} 
                           onClick={() => comment && handleCellClick(blockIndex, headerRowIndex, cellIndex, comment)}
+                          title={comment ? 'Click to view comment' : ''}
                         >
                           <span className="cell-content">{cellValue}</span>
-                          {comment && <span className="comment-indicator" title="Has comment">•</span>}
+                          {comment && <span className="comment-indicator" title="Click to view comment"></span>}
                           {visibleComment &&
                            visibleComment.blockIndex === blockIndex &&
                            visibleComment.rowIndex === headerRowIndex &&
@@ -493,11 +508,14 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                     (typeof row[0] === 'object' ? row[0].value : row[0]) && 
                     String(typeof row[0] === 'object' ? row[0].value : row[0]).trim() !== '';
                   
+                  // Check if this is row 3 (index 2) to apply special styling
+                  const isRow3 = rowIndex === 2;
+                  
                   return (
                     <React.Fragment key={rowIndex}>
                       {isShiftBoundary && <hr className="shift-divider" />}
                       <div className="shift-row">
-                        {row.slice(0, displayColCount).map((cell, cellIndex) => {
+                        {row.slice(1, displayColCount + 1).map((cell, cellIndex) => {
                           let cellValue = '';
                           let comment = '';
                           if (cell && typeof cell === 'object' && 'value' in cell) {
@@ -505,6 +523,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                             comment = cell.comment || '';
                           } else {
                             cellValue = cell !== undefined ? String(cell) : '';
+                            comment = '';
                           }
                           
                           // Format dates as MM-DD (removing the year and time)
@@ -520,24 +539,65 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                           
                           // Check if this is a shift name (Owl Shift, Day Shift, Swing Shift)
                           const isShiftName = ['Owl Shift', 'Day Shift', 'Swing Shift'].includes(cellValue);
+                          
+                          // Make row 3, column 1 visible again (not empty)
+                          if (isRow3 && cellIndex === 0) {
+                            return (
+                              <div 
+                                key={cellIndex} 
+                                className="cell" 
+                                style={{ position: 'relative' }}
+                              >
+                                <span className="cell-content">{cellValue}</span>
+                              </div>
+                            );
+                          }
+                          
+                          // Remove text from shift name cells
+                          if (cellValue === 'Owl Shift' || cellValue === 'Day Shift' || cellValue === 'Swing Shift') {
+                            return (
+                              <div 
+                                key={cellIndex} 
+                                className="cell" 
+                                style={{ position: 'relative' }}
+                              >
+                                <span className="cell-content"></span>
+                              </div>
+                            );
+                          }
+                          const commentPreview = comment ? comment.substring(0, 15) + (comment.length > 15 ? '...' : '') : '';
                           return (
                             <div 
                               key={cellIndex} 
-                              className="cell" 
+                              className={`cell ${comment ? 'cell-with-comment' : ''}`} 
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevent event bubbling
                                 if (comment) handleCellClick(blockIndex, rowIndex, cellIndex, comment);
                               }}
+                              title={comment ? 'Click to view comment' : ''}
+                              style={{ position: 'relative' }} // Add relative positioning for absolute tooltip positioning
                             >
                               <span className={`cell-content ${isShiftName ? 'shift-name' : ''}`}>{cellValue}</span>
-                              {comment && <span className="comment-indicator" title="Has comment">•</span>}
+                              {comment && <span className="comment-indicator" title="Click to view comment"></span>}
                               {visibleComment &&
                                visibleComment.blockIndex === blockIndex &&
                                visibleComment.rowIndex === rowIndex &&
                                visibleComment.cellIndex === cellIndex && (
                                 <div 
                                   className="comment-tooltip" 
-                                  data-component-name="RosterView"
+                                  style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: '0',
+                                    zIndex: 1000,
+                                    backgroundColor: 'white',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    padding: '8px',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                                    maxWidth: '250px',
+                                    wordWrap: 'break-word'
+                                  }}
                                   onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside tooltip
                                 >
                                   {visibleComment.comment}
