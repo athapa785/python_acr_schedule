@@ -15,15 +15,22 @@ def parse_excel_file(file_data):
                 if cell is None:
                     row_data.append("")
                     continue
-                    
+
                 cell_value = cell.value if hasattr(cell, 'value') else ""
                 comment_text = cell.comment.text if hasattr(cell, 'comment') and cell.comment else ""
                 
-                if comment_text:
-                    row_data.append({
-                        "value": cell_value if cell_value is not None else "",
-                        "comment": comment_text
-                    })
+                # Check if the cell has strike-through formatting
+                is_strike = False
+                if hasattr(cell, 'font') and cell.font:
+                    is_strike = getattr(cell.font, 'strike', False)
+                
+                if comment_text or is_strike:
+                    cell_obj = {"value": cell_value if cell_value is not None else ""}
+                    if comment_text:
+                        cell_obj["comment"] = comment_text
+                    if is_strike:
+                        cell_obj["strike"] = True
+                    row_data.append(cell_obj)
                 else:
                     row_data.append(cell_value if cell_value is not None else "")
             data.append(row_data)

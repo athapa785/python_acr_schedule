@@ -96,7 +96,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
     // Define shift types to look for
     const shiftTypes = ['Owl Shift', 'Day Shift', 'Swing Shift'];
     
-    for (let i = mealPeriodRowIndex; i < rows.length; i++) {
+    for (let i = mealPeriodRowIndex + 1; i < rows.length; i++) {
       const row = rows[i];
       
       // Check if this row has a time pattern or content in the first column
@@ -436,7 +436,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
   }, [visibleComment]);
   
 
-
   return (
     <div className="roster-view">
       <div className="week-header">
@@ -464,6 +463,12 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                         cellValue = cell !== undefined ? String(cell) : '';
                       }
                       
+                      // Apply strike-through style if the cell has the "strike" flag
+                      let textStyle = {};
+                      if (cell && typeof cell === 'object' && cell.strike) {
+                        textStyle = { textDecoration: 'line-through' };
+                      }
+                      
                       // Format dates as MM-DD (removing the year and time)
                       if (cellValue && cellValue.match(/\d{4}-\d{2}-\d{2}T00:00:00/)) {
                         const dateParts = cellValue.split('T')[0].split('-');
@@ -471,11 +476,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                           cellValue = `${dateParts[1]}-${dateParts[2]}`; // MM-DD format
                         }
                       }
-                      
-                      // Keep all cells including Meal Periods as requested
-                      
-                      // Don't skip any cells as requested
-                      // Keep all columns including the first one
                       
                       const commentPreview = comment ? comment.substring(0, 15) + (comment.length > 15 ? '...' : '') : '';
                       return (
@@ -485,7 +485,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                           onClick={() => comment && handleCellClick(blockIndex, headerRowIndex, cellIndex, comment)}
                           title={comment ? 'Click to view comment' : ''}
                         >
-                          <span className="cell-content">{cellValue}</span>
+                          <span className="cell-content" style={textStyle}>{cellValue}</span>
                           {comment && <span className="comment-indicator" title="Click to view comment"></span>}
                           {visibleComment &&
                            visibleComment.blockIndex === blockIndex &&
@@ -526,6 +526,12 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                             comment = '';
                           }
                           
+                          // Apply strike-through style if the cell has the "strike" flag
+                          let textStyle = {};
+                          if (cell && typeof cell === 'object' && cell.strike) {
+                            textStyle = { textDecoration: 'line-through' };
+                          }
+                          
                           // Format dates as MM-DD (removing the year and time)
                           if (cellValue && cellValue.match(/\d{4}-\d{2}-\d{2}T00:00:00/)) {
                             const dateParts = cellValue.split('T')[0].split('-');
@@ -533,9 +539,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                               cellValue = `${dateParts[1]}-${dateParts[2]}`; // MM-DD format
                             }
                           }
-                          
-                          // Don't skip any cells as requested
-                          // Keep all columns including the first one
                           
                           // Check if this is a shift name (Owl Shift, Day Shift, Swing Shift)
                           const isShiftName = ['Owl Shift', 'Day Shift', 'Swing Shift'].includes(cellValue);
@@ -548,7 +551,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                                 className="cell" 
                                 style={{ position: 'relative' }}
                               >
-                                <span className="cell-content">{cellValue}</span>
+                                <span className="cell-content" style={textStyle}>{cellValue}</span>
                               </div>
                             );
                           }
@@ -565,7 +568,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                               </div>
                             );
                           }
-                          const commentPreview = comment ? comment.substring(0, 15) + (comment.length > 15 ? '...' : '') : '';
                           return (
                             <div 
                               key={cellIndex} 
@@ -575,9 +577,9 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                                 if (comment) handleCellClick(blockIndex, rowIndex, cellIndex, comment);
                               }}
                               title={comment ? 'Click to view comment' : ''}
-                              style={{ position: 'relative' }} // Add relative positioning for absolute tooltip positioning
+                              style={{ position: 'relative' }}
                             >
-                              <span className={`cell-content ${isShiftName ? 'shift-name' : ''}`}>{cellValue}</span>
+                              <span className={`cell-content ${isShiftName ? 'shift-name' : ''}`} style={textStyle}>{cellValue}</span>
                               {comment && <span className="comment-indicator" title="Click to view comment"></span>}
                               {visibleComment &&
                                visibleComment.blockIndex === blockIndex &&
@@ -598,7 +600,7 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                                     maxWidth: '250px',
                                     wordWrap: 'break-word'
                                   }}
-                                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside tooltip
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   {visibleComment.comment}
                                 </div>
