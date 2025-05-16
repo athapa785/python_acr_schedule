@@ -1,0 +1,45 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.acrScheduleViewer {
+  .container {
+    max-width: 100%;
+    margin: 0px auto;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .row {
+    @include ms-Grid-row;
+    padding: 20px;
+  }
+
+  .column {
+    @include ms-Grid-col;
+    @include ms-lg12;
+  }
+
+  .title {
+    @include ms-font-xl;
+    color: $ms-color-themePrimary;
+    margin-bottom: 20px;
+  }
+
+  .lastRefresh {
+    font-size: 12px;
+    color: $ms-color-neutralSecondary;
+    margin-bottom: 15px;
+    text-align: right;
+  }
+
+  .darkTheme {
+    background-color: $ms-color-themeDark;
+    color: $ms-color-white;
+
+    .title {
+      color: $ms-color-white;
+    }
+
+    .lastRefresh {
+      color: $ms-color-neutralLight;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "22222222-3333-4444-5555-666666666666",
+  "alias": "AcrScheduleViewerWebPart",
+  "componentType": "WebPart",
+  "version": "1.0.0",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "supportsThemeVariants": true,
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+    "group": { "default": "Other" },
+    "title": { "default": "ACR Schedule Viewer" },
+    "description": { "default": "View ACR operation shift schedules from SharePoint Excel files" },
+    "officeFabricIconFontName": "Calendar",
+    "properties": {
+      "excelFileUrl": "",
+      "refreshInterval": 60
+    }
+  }]
+}
