@@ -64,17 +64,16 @@
   }
   
   .shift-content {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+      display: table;
+      table-layout: auto;
+      width: 100%;
+      border-collapse: collapse; /* ensures borders collapse for a neater table look */
   }
   
   .shift-row,
   .header-row {
-    display: flex;
-    gap: 10px;
-    padding: 4px 0;
-    border-bottom: 1px solid #f0f0f0;
+      display: table-row;
+      border-bottom: 1px solid #f0f0f0;
   }
   
   .header-row {
@@ -91,12 +90,12 @@
   }
   
   .cell {
-    flex: 1;
-    padding: 6px 8px;
-    position: relative;
-    cursor: pointer;
-    border-radius: 3px;
-    transition: background-color 0.2s;
+      display: table-cell;
+      padding: 6px 8px;
+      position: relative;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: background-color 0.2s;
   }
   
   .cell:hover {
