@@ -107,10 +107,6 @@ python_acr_schedule/
 4. The application will display the current week's schedule by default
 5. Use the pagination controls to navigate between different weeks
 
-## API Endpoints
-
-- `GET /api/schedule/`: Returns the parsed Excel schedule data
-
 ## Development
 
 ### Adding New Features
@@ -120,11 +116,3 @@ python_acr_schedule/
 
 ### Customizing for Different Excel Formats
 The Excel parsing logic in `parse_excel.py` can be modified to support different Excel schedule formats.
-
-## License
-
-This project is proprietary and confidential.
-
-## Contact
-
-For questions or support, please contact the project maintainer.
