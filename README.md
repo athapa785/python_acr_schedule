@@ -125,11 +125,9 @@ The Excel parsing logic in `parse_excel.py` can be modified to support different
    cp backend/.env.example backend/.env
    ```
 
-2. Edit the `.env` file with your production settings:
-   - Generate a secure `DJANGO_SECRET_KEY`
-   - Set `DJANGO_DEBUG=False`
-   - Configure `ALLOWED_HOSTS` with your domain(s)
-   - Configure `CORS_ALLOWED_ORIGINS` with your domain(s)
+2. Edit the `.env` file if needed:
+   - You can use the default settings for local deployment
+   - For custom domains, update the `ALLOWED_HOSTS` variable
 
 ### Option 1: Traditional Server Deployment
 1. Build the React frontend:
@@ -173,8 +171,8 @@ The Excel parsing logic in `parse_excel.py` can be modified to support different
    - Follow their specific deployment instructions
    - Use the provided `Procfile` and `runtime.txt`
 
-### Security Considerations
-- Always use HTTPS in production
-- Set proper CORS settings to restrict access
-- Keep your secret key secure and never commit it to version control
-- Regularly update dependencies to patch security vulnerabilities
+### Deployment Notes
+- The application is configured for simplified deployment with minimal configuration
+- Debug mode is enabled by default for easier troubleshooting
+- CORS is configured to allow all origins for easier integration
+- For a more secure setup, you can re-enable security features in the settings.py file
