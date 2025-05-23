@@ -98,7 +98,7 @@ function App() {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
-        const response = await fetch("http://localhost:8000/api/schedule/", {
+        const response = await fetch("/api/schedule/", {
           signal: controller.signal
         });
         clearTimeout(timeoutId);

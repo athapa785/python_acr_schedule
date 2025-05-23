@@ -16,7 +16,10 @@ class ScheduleAPIView(APIView):
             possible_paths = [
                 os.path.join(settings.BASE_DIR, 'schedule.xlsx'),
                 os.path.join(settings.BASE_DIR.parent, 'schedule.xlsx'),
-                os.path.join(settings.BASE_DIR.parent, 'backend', 'schedule.xlsx')
+                os.path.join(settings.BASE_DIR.parent, 'backend', 'schedule.xlsx'),
+                # Add more paths to check
+                os.path.join(os.path.dirname(settings.BASE_DIR), 'schedule.xlsx'),
+                os.path.join(os.path.dirname(os.path.dirname(settings.BASE_DIR)), 'schedule.xlsx')
             ]
             
             file_path = None

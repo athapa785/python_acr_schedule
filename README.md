@@ -116,3 +116,65 @@ python_acr_schedule/
 
 ### Customizing for Different Excel Formats
 The Excel parsing logic in `parse_excel.py` can be modified to support different Excel schedule formats.
+
+## Production Deployment
+
+### Environment Setup
+1. Copy the `.env.example` file to `.env` in the backend directory:
+   ```
+   cp backend/.env.example backend/.env
+   ```
+
+2. Edit the `.env` file with your production settings:
+   - Generate a secure `DJANGO_SECRET_KEY`
+   - Set `DJANGO_DEBUG=False`
+   - Configure `ALLOWED_HOSTS` with your domain(s)
+   - Configure `CORS_ALLOWED_ORIGINS` with your domain(s)
+
+### Option 1: Traditional Server Deployment
+1. Build the React frontend:
+   ```
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. Collect static files:
+   ```
+   cd backend
+   python manage.py collectstatic --noinput
+   ```
+
+3. Run the deployment script:
+   ```
+   cd backend
+   ./deploy.sh
+   ```
+
+### Option 2: Docker Deployment
+1. Build and run using Docker Compose:
+   ```
+   docker-compose up --build
+   ```
+   The application will be available at http://localhost:8000
+
+2. For production, modify the `docker-compose.yml` file with your specific environment variables.
+
+### Option 3: Platform as a Service (PaaS)
+1. For Heroku deployment:
+   - Create a new Heroku app
+   - Set environment variables in Heroku dashboard
+   - Push the code to Heroku:
+     ```
+     git push heroku main
+     ```
+
+2. For other PaaS providers:
+   - Follow their specific deployment instructions
+   - Use the provided `Procfile` and `runtime.txt`
+
+### Security Considerations
+- Always use HTTPS in production
+- Set proper CORS settings to restrict access
+- Keep your secret key secure and never commit it to version control
+- Regularly update dependencies to patch security vulnerabilities

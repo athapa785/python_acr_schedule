@@ -1,12 +1,20 @@
 import os
+import secrets
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = Path(BASE_DIR).parent / 'frontend'
 
-SECRET_KEY = 'your-secret-key-here'
-DEBUG = True
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+# For production, set this via environment variable
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', secrets.token_urlsafe(50))
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+
+# Configure allowed hosts for production
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -23,6 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS middleware (must be before CommonMiddleware)
     'django.middleware.common.CommonMiddleware',
@@ -37,7 +46,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-       'DIRS': [],
+       'DIRS': [os.path.join(FRONTEND_DIR, 'build')],
        'APP_DIRS': True,
        'OPTIONS': {
            'context_processors': [
@@ -75,11 +84,66 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # In production, you should specify exact origins
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # React default port
-# ]
+# Add static files configuration for React
+STATICFILES_DIRS = [
+    os.path.join(FRONTEND_DIR, 'build', 'static'),
+]
+
+# Static root for collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# CORS settings for production
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+
+# Security settings for production
+if not DEBUG:
+    # HTTPS settings
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# WhiteNoise configuration for static files
+WHITENOISE_USE_FINDERS = False
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_ALLOW_ALL_ORIGINS = True
+
+# Simplified static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

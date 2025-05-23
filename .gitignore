@@ -53,9 +53,9 @@ venv/
 env/
 ENV/
 
-# Excel files
-*.xlsx
-*.xls
+# Environment variables
+.env
+
 
 # Temporary files
 *.tmp
@@ -64,6 +64,14 @@ ENV/
 # Vercel
 .vercel
 .next
+
+# Production
+staticfiles/
+.netlify
+
+# Deployment
+*.pem
+*.key
 
 # SharePoint
 *.sppkg
