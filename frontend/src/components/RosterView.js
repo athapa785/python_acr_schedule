@@ -81,11 +81,12 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
       console.log('Using row after days of week as start of data:', mealPeriodRowIndex);
     }
     
-    // The header rows include the days of week row and the meal periods row
-    const headerRows = rows.slice(Math.max(0, daysOfWeekRow), mealPeriodRowIndex + 1);
+    // The header rows include ONLY the days of week row and the dates row (2 rows total)
+    // This ensures rows 3 and 4 will be in content rows, not header rows
+    const headerRows = rows.slice(Math.max(0, daysOfWeekRow), daysOfWeekRow + 2);
     console.log('Header rows:', headerRows.length);
     
-    // Now look for shift blocks after the meal periods row
+    // Now look for shift blocks after the header rows
     // For this schedule, we'll look for specific shift names (Owl, Day, Swing)
     // and group them into separate cards
     const blocks = [];
@@ -96,7 +97,9 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
     // Define shift types to look for
     const shiftTypes = ['Owl Shift', 'Day Shift', 'Swing Shift'];
     
-    for (let i = mealPeriodRowIndex + 1; i < rows.length; i++) {
+    // Start processing content rows from after the header rows, not from mealPeriodRowIndex + 1
+    // This ensures no overlap between header rows and content rows
+    for (let i = daysOfWeekRow + 2; i < rows.length; i++) {
       const row = rows[i];
       
       // Check if this row has a time pattern or content in the first column
@@ -161,8 +164,9 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
     
     // If we didn't find any blocks but have header rows, create a default block
     if (blocks.length === 0 && headerRows.length > 0) {
-      // Find all non-empty rows after the header
-      const contentRows = rows.slice(mealPeriodRowIndex + 1).filter(row => {
+      // Find all non-empty rows after the header rows (not mealPeriodRowIndex + 1)
+      // This ensures no overlap between header rows and content rows
+      const contentRows = rows.slice(daysOfWeekRow + 2).filter(row => {
         return row.some(cell => {
           const cellValue = cell && (typeof cell === 'object' ? cell.value : cell);
           return cellValue !== null && cellValue !== undefined && cellValue !== '';
@@ -441,6 +445,14 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
       <div className="week-header">
         <h2>{weekHeader}</h2>
         {weekDateRange && <div className="date-range" data-component-name="RosterView">{weekDateRange}</div>}
+        <div className="current-week-nav">
+          <button 
+            className="current-week-button" 
+            onClick={() => window.location.href = '/acr_schedule/'}
+          >
+            Go to Current Week
+          </button>
+        </div>
       </div>
       {shiftBlocks.length > 0 ? (
         // We have shift blocks to display
@@ -448,9 +460,8 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
           return (
             <div key={blockIndex} className="shift-block shift-card">
               {block.shiftName && <h3 className="shift-title">{block.shiftName}</h3>}
-              {/* No shift name header as requested */}
               <div className="shift-content">
-                {/* Display the header rows first */}
+                {/* Display the header rows first - days and dates */}
                 {block.headerRows.map((row, headerRowIndex) => (
                   <div key={`header-${headerRowIndex}`} className="header-row">
                     {row.slice(1, displayColCount + 1).map((cell, cellIndex) => {
@@ -458,7 +469,8 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                       let comment = '';
                       if (cell && typeof cell === 'object' && 'value' in cell) {
                         cellValue = cell.value !== undefined ? String(cell.value) : '';
-                        comment = cell.comment || '';
+                        // Don't include comments in header rows to avoid duplication
+                        // comment = cell.comment || '';
                       } else {
                         cellValue = cell !== undefined ? String(cell) : '';
                       }
@@ -477,24 +489,12 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                         }
                       }
                       
-                      const commentPreview = comment ? comment.substring(0, 15) + (comment.length > 15 ? '...' : '') : '';
                       return (
                         <div 
                           key={cellIndex} 
-                          className={`cell header-cell ${comment ? 'cell-with-comment' : ''}`} 
-                          onClick={() => comment && handleCellClick(blockIndex, headerRowIndex, cellIndex, comment)}
-                          title={comment ? 'Click to view comment' : ''}
+                          className="cell header-cell"
                         >
                           <span className="cell-content" style={textStyle}>{cellValue}</span>
-                          {comment && <span className="comment-indicator" title="Click to view comment"></span>}
-                          {visibleComment &&
-                           visibleComment.blockIndex === blockIndex &&
-                           visibleComment.rowIndex === headerRowIndex &&
-                           visibleComment.cellIndex === cellIndex && (
-                            <div className="comment-tooltip">
-                              {visibleComment.comment}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -507,9 +507,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                   const isShiftBoundary = rowIndex > 0 && row[0] && 
                     (typeof row[0] === 'object' ? row[0].value : row[0]) && 
                     String(typeof row[0] === 'object' ? row[0].value : row[0]).trim() !== '';
-                  
-                  // Check if this is row 3 (index 2) to apply special styling
-                  const isRow3 = rowIndex === 2;
                   
                   return (
                     <React.Fragment key={rowIndex}>
@@ -543,65 +540,19 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                           // Check if this is a shift name (Owl Shift, Day Shift, Swing Shift)
                           const isShiftName = ['Owl Shift', 'Day Shift', 'Swing Shift'].includes(cellValue);
                           
-                          // Make row 3, column 1 visible again (not empty)
-                          if (isRow3 && cellIndex === 0) {
-                            return (
-                              <div 
-                                key={cellIndex} 
-                                className="cell" 
-                                style={{ position: 'relative' }}
-                              >
-                                <span className="cell-content" style={textStyle}>{cellValue}</span>
-                              </div>
-                            );
-                          }
-                          
-                          // Remove text from shift name cells
-                          if (cellValue === 'Owl Shift' || cellValue === 'Day Shift' || cellValue === 'Swing Shift') {
-                            return (
-                              <div 
-                                key={cellIndex} 
-                                className="cell" 
-                                style={{ position: 'relative' }}
-                              >
-                                <span className="cell-content"></span>
-                              </div>
-                            );
-                          }
                           return (
                             <div 
                               key={cellIndex} 
-                              className={`cell ${comment ? 'cell-with-comment' : ''}`} 
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent event bubbling
-                                if (comment) handleCellClick(blockIndex, rowIndex, cellIndex, comment);
-                              }}
-                              title={comment ? 'Click to view comment' : ''}
-                              style={{ position: 'relative' }}
+                              className={`cell ${isShiftName ? 'shift-name-cell' : ''} ${comment ? 'cell-with-comment' : ''}`}
+                              onClick={() => comment && handleCellClick(blockIndex, rowIndex, cellIndex, comment)}
                             >
-                              <span className={`cell-content ${isShiftName ? 'shift-name' : ''}`} style={textStyle}>{cellValue}</span>
+                              <span className="cell-content" style={textStyle}>{cellValue}</span>
                               {comment && <span className="comment-indicator" title="Click to view comment"></span>}
                               {visibleComment &&
                                visibleComment.blockIndex === blockIndex &&
                                visibleComment.rowIndex === rowIndex &&
                                visibleComment.cellIndex === cellIndex && (
-                                <div 
-                                  className="comment-tooltip" 
-                                  style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: '0',
-                                    zIndex: 1000,
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px',
-                                    padding: '8px',
-                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                                    maxWidth: '250px',
-                                    wordWrap: 'break-word'
-                                  }}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
+                                <div className="comment-tooltip">
                                   {visibleComment.comment}
                                 </div>
                               )}
@@ -613,7 +564,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                   );
                 })}
               </div>
-              {blockIndex < shiftBlocks.length - 1 && <hr className="block-divider" />}
             </div>
           );
         })
@@ -628,6 +578,14 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
           </div>
         </div>
       )}
+      <div className="current-week-nav">
+        <button 
+          className="current-week-button" 
+          onClick={() => window.location.href = '/acr_schedule/'}
+        >
+          Go to Current Week
+        </button>
+      </div>
     </div>
   );
 }

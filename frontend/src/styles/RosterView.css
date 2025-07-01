@@ -65,7 +65,7 @@
   
   .shift-content {
       display: table;
-      table-layout: auto;
+      table-layout: fixed;
       width: 100%;
       border-collapse: collapse; /* ensures borders collapse for a neater table look */
   }
@@ -96,6 +96,9 @@
       cursor: pointer;
       vertical-align: middle;
       transition: background-color 0.2s;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100px;
   }
   
   .cell:hover {
@@ -202,4 +205,30 @@
   
   .debug-info p {
     margin: 5px 0;
+  }
+  
+  /* Current week navigation buttons */
+  .current-week-nav {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  
+  .current-week-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .current-week-button:hover {
+    background-color: #45a049;
   }
