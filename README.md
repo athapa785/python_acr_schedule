@@ -9,19 +9,26 @@ A full-stack web application for viewing and managing ACR operations shift sched
 - **Responsive UI**: Clean interface that works on desktop and mobile devices
 - **Auto-detection**: Automatically detects and displays the current week's schedule
 - **Cell Formatting Support**: Preserves Excel formatting like comments and strikethrough text
-- **Hourly Refresh**: Automatically refreshes data to ensure schedules are up-to-date
+- **Regular Refresh**: Automatically refreshes data every 5 minutes to ensure schedules are up-to-date
+- **Comment Display**: View cell comments by clicking on cells with comment indicators
+- **Current Week Navigation**: Easily return to the current week from any page
+- **Equal-width Columns**: Consistent column widths with text wrapping for better readability
 
 ## Tech Stack
 
 ### Backend
-- Django (Python web framework)
+- Django 3.2.19 (Python web framework)
 - Django REST Framework (API development)
 - OpenPyXL (Excel file parsing)
-- SQLite (Database)
+- Uvicorn (ASGI server)
 
 ### Frontend
-- React (JavaScript UI library)
+- React 18 (JavaScript UI library)
 - CSS3 (Styling)
+
+### Deployment
+- Apache (Web server with proxy configuration)
+- Uvicorn (ASGI server for Django)
 
 ## Project Structure
 
@@ -30,12 +37,15 @@ python_acr_schedule/
 ├── backend/                 # Django backend
 │   ├── manage.py            # Django management script
 │   ├── requirements.txt     # Python dependencies
+│   ├── start_service.sh     # Script to start the backend service
+│   ├── stop_service.sh      # Script to stop the backend service
 │   ├── schedule/            # Main Django app
 │   │   ├── utils/           # Utility functions
 │   │   │   └── parse_excel.py  # Excel parsing logic
 │   │   ├── views.py         # API endpoints
 │   │   └── urls.py          # URL routing
-│   └── schedule.xlsx        # Sample schedule file
+│   └── backend/             # Django project settings
+│       └── settings.py      # Django configuration
 │
 └── frontend/                # React frontend
     ├── package.json         # Node.js dependencies
@@ -43,8 +53,7 @@ python_acr_schedule/
     └── src/                 # React source code
         ├── App.js           # Main application component
         ├── components/      # React components
-        │   ├── RosterView.js  # Schedule display component
-        │   └── Pagination.js  # Week navigation component
+        │   └── RosterView.js  # Schedule display component
         └── styles/          # CSS stylesheets
 ```
 
@@ -98,6 +107,60 @@ python_acr_schedule/
    npm start
    ```
    The frontend will be available at http://localhost:3000
+
+## Production Deployment
+
+### Build the Frontend
+1. Navigate to the frontend directory:
+   ```
+   cd frontend
+   ```
+
+2. Build the React application:
+   ```
+   npm run build
+   ```
+
+3. Collect static files for Django:
+   ```
+   cd ../backend
+   python manage.py collectstatic --noinput
+   ```
+
+### Deploy with Apache
+1. Configure Apache to proxy requests to the Django application:
+   ```
+   # Example Apache configuration
+   <Location /acr_schedule>
+       ProxyPass http://localhost:8004
+       ProxyPassReverse http://localhost:8004
+   </Location>
+   ```
+
+2. Start the Django application with Uvicorn:
+   ```
+   cd backend
+   ./start_service.sh
+   ```
+
+3. To stop the service:
+   ```
+   ./stop_service.sh
+   ```
+
+## Environment Configuration
+
+The application requires the following environment variables:
+
+- `SCHEDULE_FILE_PATH`: Absolute path to the Excel schedule file (set in start_service.sh)
+
+## Recent Improvements
+
+- Fixed issue with duplicate comments appearing in the schedule view
+- Added equal-width columns with text wrapping for better readability
+- Added "Go to Current Week" navigation buttons at the top and bottom of the schedule
+- Reduced refresh interval from 1 hour to 5 minutes for more up-to-date information
+- Improved current week detection algorithm to better handle week transitions
 
 ## Usage
 
@@ -158,7 +221,37 @@ The Excel parsing logic in `parse_excel.py` can be modified to support different
 
 2. For production, modify the `docker-compose.yml` file with your specific environment variables.
 
-### Option 3: Platform as a Service (PaaS)
+### Option 3: Apache with Django as API-only
+1. Build the React frontend:
+   ```
+   cd frontend
+   npm install
+   npm run build
+   ```
+
+2. Configure Django to serve API only:
+   - This is already set up in the latest version
+   - Django will only handle API requests at `/api/schedule/`
+
+3. Configure Apache:
+   - Use the provided `apache_config_example.conf` as a template
+   - Update paths and domain names to match your environment
+   - Apache will serve the React static files directly
+   - API requests will be proxied to Django
+
+4. Run Django with Gunicorn:
+   ```
+   cd backend
+   gunicorn --bind 127.0.0.1:8000 backend.wsgi:application
+   ```
+
+5. Enable required Apache modules:
+   ```
+   sudo a2enmod proxy proxy_http rewrite headers
+   sudo systemctl restart apache2
+   ```
+
+### Option 4: Platform as a Service (PaaS)
 1. For Heroku deployment:
    - Create a new Heroku app
    - Set environment variables in Heroku dashboard
