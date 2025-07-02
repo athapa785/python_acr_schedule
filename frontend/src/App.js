@@ -7,6 +7,7 @@ import './styles/App.css';
 function App() {
   const [scheduleData, setScheduleData] = useState(null);
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const [todayWeekIndex, setTodayWeekIndex] = useState(0); // Track the week that contains today
   const [totalWeeks, setTotalWeeks] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -151,6 +152,7 @@ function App() {
           const currentWeekIdx = findCurrentWeek(data.sheets[0].data || [], weekSeparators);
           console.log('Setting current week index to:', currentWeekIdx);
           setCurrentWeekIndex(currentWeekIdx);
+          setTodayWeekIndex(currentWeekIdx); // Save the "today" week index
           
           // Update last refresh time
           setLastRefreshTime(new Date());
@@ -175,11 +177,11 @@ function App() {
   useEffect(() => {
     fetchSchedule();
     
-    // Set up automatic refresh every hour to check for week changes
+    // Set up automatic refresh every 15 minutest check for week changes
     const refreshInterval = setInterval(() => {
       console.log('Performing scheduled refresh');
       fetchSchedule();
-    }, 60 * 5 * 1000); // Refresh every 5 minutes
+    }, 60 * 15 * 1000); // Refresh every 5 minutes
     
     return () => clearInterval(refreshInterval);
   }, []);
@@ -196,6 +198,11 @@ function App() {
     if (currentWeekIndex > 0) {
       setCurrentWeekIndex(currentWeekIndex - 1);
     }
+  };
+
+  // Jump back to the week that contains today
+  const goToCurrentWeek = () => {
+    setCurrentWeekIndex(todayWeekIndex);
   };
 
   // Use the swipe hook to enable swipe navigation on touchscreen devices
@@ -216,6 +223,7 @@ function App() {
             currentWeekIndex={currentWeekIndex}
             selectedName={selectedName}
             setSelectedName={setSelectedName}
+            goToCurrentWeek={goToCurrentWeek}
           />
           {totalWeeks > 0 && (
             <Pagination 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/RosterView.css';
 import DayHeader from './DayHeader';
 
-function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName }) {
+function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName, goToCurrentWeek }) {
   // Display columns for the full week (Monday through Sunday), excluding the first column
   const displayColCount = 8; // 7 days plus one less to skip the first column
   const [visibleComment, setVisibleComment] = useState(null);
@@ -612,7 +612,7 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
       <div className="current-week-nav">
         <button 
           className="current-week-button" 
-          onClick={() => window.location.href = '/acr_schedule/'}
+          onClick={goToCurrentWeek}
         >
           Go to Current Week
         </button>
