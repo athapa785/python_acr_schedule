@@ -73,3 +73,15 @@
     pointer-events: auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
+  
+  /* Hide navigation buttons on iPad-sized devices */
+  @media only screen and (min-width: 768px) and (max-width: 1024px) {
+    .pagination .pagination-controls .arrow-button {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+  }

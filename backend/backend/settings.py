@@ -16,6 +16,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 # Configure allowed hosts for production
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# URL configuration for subdirectory deployment
+# This is the path where the application is mounted on the server
+# URL configuration for optional sub-directory deployment (empty by default)
+FORCE_SCRIPT_NAME = '/acr_schedule'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,7 +51,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-       'DIRS': [os.path.join(FRONTEND_DIR, 'build')],
+       'DIRS': [os.path.join(FRONTEND_DIR, 'build')],  # Include React build directory
        'APP_DIRS': True,
        'OPTIONS': {
            'context_processors': [
@@ -82,6 +87,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# Set STATIC_URL to a fixed value for API static files
 STATIC_URL = '/static/'
 
 # Add static files configuration for React
@@ -92,17 +98,19 @@ STATICFILES_DIRS = [
 # Static root for collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# CORS settings - allowing all origins for simplicity
+# CORS settings - allowing all origins for API access
 CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+# CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:80').split(',')
 
-# WhiteNoise configuration for static files
+# Configure WhiteNoise to work alongside Apache
+# These settings ensure WhiteNoise doesn't interfere with Apache's static file serving
+WHITENOISE_ROOT = STATIC_ROOT
 WHITENOISE_USE_FINDERS = False
 WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_ALLOW_ALL_ORIGINS = True
 
-# Simplified static file serving
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use a simpler storage backend to avoid conflicts with Apache
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Logging configuration
 LOGGING = {

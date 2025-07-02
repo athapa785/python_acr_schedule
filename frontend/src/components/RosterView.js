@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/RosterView.css';
+import DayHeader from './DayHeader';
 
-function RosterView({ sheet, currentWeekIndex = 0 }) {
+function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName }) {
   // Display columns for the full week (Monday through Sunday), excluding the first column
   const displayColCount = 8; // 7 days plus one less to skip the first column
   const [visibleComment, setVisibleComment] = useState(null);
+  // Ref to store long-press timer id
+  const longPressTimeout = React.useRef(null);
 
   // For this specific Excel format, we'll create a custom grouping function
   // Group rows by shift type (Owl, Day, Swing)
@@ -394,27 +397,57 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
     return 'Schedule';
   }
 
-  const handleCellClick = (blockIndex, rowIndex, cellIndex, comment) => {
-    // If clicking the same cell that already has a visible comment, close it
-    if (visibleComment && 
-        visibleComment.blockIndex === blockIndex && 
-        visibleComment.rowIndex === rowIndex && 
-        visibleComment.cellIndex === cellIndex) {
-      // Close the tooltip if clicking the same cell
-      setVisibleComment(null);
+  // Handle name selection to highlight all instances of a name
+  const handleNameSelection = (name) => {
+    if (selectedName === name) {
+      // If clicking the same name again, deselect it
+      setSelectedName(null);
     } else {
-      // First clear any existing tooltip
-      setVisibleComment(null);
-      
-      // Then set the new tooltip after a very brief delay to ensure React has time to clear the previous one
-      setTimeout(() => {
-        setVisibleComment({
-          blockIndex,
-          rowIndex,
-          cellIndex,
-          comment
-        });
-      }, 10);
+      // Select the new name
+      setSelectedName(name);
+    }
+  };
+
+  // Check if a cell value is a name (not a date, shift type, or empty)
+  const isNameCell = (cellValue) => {
+    if (!cellValue) return false;
+    const strValue = String(cellValue).trim();
+    
+    // Skip empty cells, dates, and shift type headers
+    if (strValue === '' || 
+        strValue.match(/\d{4}-\d{2}-\d{2}/) || 
+        shiftTypes.some(type => strValue.includes(type))) {
+      return false;
+    }
+    
+    // Assume it's a name if it's not a date or shift type and has more than 2 characters
+    return strValue.length > 2;
+  };
+
+  const handleCellClick = (blockIndex, rowIndex, cellIndex, comment) => {
+    // Handle comment tooltip display
+    if (comment) {
+      // If clicking the same cell that already has a visible comment, close it
+      if (visibleComment && 
+          visibleComment.blockIndex === blockIndex && 
+          visibleComment.rowIndex === rowIndex && 
+          visibleComment.cellIndex === cellIndex) {
+        // Close the tooltip if clicking the same cell
+        setVisibleComment(null);
+      } else {
+        // First clear any existing tooltip
+        setVisibleComment(null);
+        
+        // Then set the new tooltip after a very brief delay to ensure React has time to clear the previous one
+        setTimeout(() => {
+          setVisibleComment({
+            blockIndex,
+            rowIndex,
+            cellIndex,
+            comment
+          });
+        }, 10);
+      }
     }
   };
   
@@ -439,21 +472,33 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
     };
   }, [visibleComment]);
   
+  // Clear visible comments when the week changes (either by button navigation or swipe)
+  React.useEffect(() => {
+    // Clear any visible comment when the currentWeekIndex changes
+    setVisibleComment(null);
+  }, [currentWeekIndex]);
+  
+
+  // We no longer clear selectedName on week change to allow highlighting to persist
 
   return (
     <div className="roster-view">
       <div className="week-header">
         <h2>{weekHeader}</h2>
         {weekDateRange && <div className="date-range" data-component-name="RosterView">{weekDateRange}</div>}
-        <div className="current-week-nav">
-          <button 
-            className="current-week-button" 
-            onClick={() => window.location.href = '/acr_schedule/'}
-          >
-            Go to Current Week
-          </button>
-        </div>
       </div>
+      {/* Add the fixed day header at the top */}
+      {shiftBlocks.length > 0 && shiftBlocks[0].headerRows && (
+        <DayHeader headerRows={shiftBlocks[0].headerRows} />
+      )}
+      
+      {/* Display selected name indicator if a name is selected */}
+      {selectedName && (
+        <div className="selected-name-indicator">
+          <span className="selected-name-text">Highlighting: {selectedName}</span>
+          <button className="clear-selection-button" onClick={() => setSelectedName(null)}>Clear</button>
+        </div>
+      )}
       {shiftBlocks.length > 0 ? (
         // We have shift blocks to display
         shiftBlocks.map((block, blockIndex) => {
@@ -461,45 +506,6 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
             <div key={blockIndex} className="shift-block shift-card">
               {block.shiftName && <h3 className="shift-title">{block.shiftName}</h3>}
               <div className="shift-content">
-                {/* Display the header rows first - days and dates */}
-                {block.headerRows.map((row, headerRowIndex) => (
-                  <div key={`header-${headerRowIndex}`} className="header-row">
-                    {row.slice(1, displayColCount + 1).map((cell, cellIndex) => {
-                      let cellValue = '';
-                      let comment = '';
-                      if (cell && typeof cell === 'object' && 'value' in cell) {
-                        cellValue = cell.value !== undefined ? String(cell.value) : '';
-                        // Don't include comments in header rows to avoid duplication
-                        // comment = cell.comment || '';
-                      } else {
-                        cellValue = cell !== undefined ? String(cell) : '';
-                      }
-                      
-                      // Apply strike-through style if the cell has the "strike" flag
-                      let textStyle = {};
-                      if (cell && typeof cell === 'object' && cell.strike) {
-                        textStyle = { textDecoration: 'line-through' };
-                      }
-                      
-                      // Format dates as MM-DD (removing the year and time)
-                      if (cellValue && cellValue.match(/\d{4}-\d{2}-\d{2}T00:00:00/)) {
-                        const dateParts = cellValue.split('T')[0].split('-');
-                        if (dateParts.length === 3) {
-                          cellValue = `${dateParts[1]}-${dateParts[2]}`; // MM-DD format
-                        }
-                      }
-                      
-                      return (
-                        <div 
-                          key={cellIndex} 
-                          className="cell header-cell"
-                        >
-                          <span className="cell-content" style={textStyle}>{cellValue}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
                 
                 {/* Display the content rows with dividers between shifts */}
                 {block.contentRows.map((row, rowIndex) => {
@@ -540,11 +546,36 @@ function RosterView({ sheet, currentWeekIndex = 0 }) {
                           // Check if this is a shift name (Owl Shift, Day Shift, Swing Shift)
                           const isShiftName = ['Owl Shift', 'Day Shift', 'Swing Shift'].includes(cellValue);
                           
+                          // Check if this cell contains the selected name
+                          const isSelectedName = selectedName && 
+                                                 cellValue && 
+                                                 String(cellValue).trim() === selectedName;
+                          
+                          // Check if this is a name cell that can be selected
+                          const isName = isNameCell(cellValue);
+                          
                           return (
                             <div 
                               key={cellIndex} 
-                              className={`cell ${isShiftName ? 'shift-name-cell' : ''} ${comment ? 'cell-with-comment' : ''}`}
-                              onClick={() => comment && handleCellClick(blockIndex, rowIndex, cellIndex, comment)}
+                              className={`cell 
+                                ${isShiftName ? 'shift-name-cell' : ''} 
+                                ${comment ? 'cell-with-comment' : ''}
+                                ${isSelectedName ? 'selected-name' : ''}
+                              `}
+                              onClick={() => handleCellClick(blockIndex, rowIndex, cellIndex, comment)}
+                              {...(isName ? {
+                                onDoubleClick: () => handleNameSelection(cellValue),
+                                onTouchStart: () => {
+                                  longPressTimeout.current = setTimeout(() => handleNameSelection(cellValue), 600);
+                                },
+                                onTouchEnd: () => {
+                                  if (longPressTimeout.current) {
+                                    clearTimeout(longPressTimeout.current);
+                                    longPressTimeout.current = null;
+                                  }
+                                }
+                              } : {})}
+                              title={isName ? 'Double-click or long-press to highlight this name' : ''}
                             >
                               <span className="cell-content" style={textStyle}>{cellValue}</span>
                               {comment && <span className="comment-indicator" title="Click to view comment"></span>}

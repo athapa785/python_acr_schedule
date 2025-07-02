@@ -1,0 +1,95 @@
+.day-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: #fff; /* Match shift card background */
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  /* No explicit border so width matches shift-card */
+  border-radius: 6px;           /* Card radius */
+  padding: 0;                  /* Remove outer padding for exact alignment */
+  margin-top: -2px;            /* Preserve existing tweak */
+  margin-bottom: 15px;         /* Add spacing below like shift cards */
+  max-width: 1000px;           /* Align with roster width */
+  margin-left: auto;
+  margin-right: auto;          /* Center card like shift cards */
+}
+
+.day-header-content {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%; /* Fill full available width */
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.day-header .header-row {
+  display: table-row;
+}
+
+.day-cell {
+  display: table-cell;
+  padding: 4px 6px; /* Match .cell padding */
+  box-sizing: border-box; /* Ensure border/padding included in width */
+  width: 14.285%; /* Evenly distribute across 7 columns */
+  text-align: left;
+  font-weight: bold;
+  vertical-align: middle;
+  border-bottom: 1px solid #eee;
+  width: 14.28%; /* Equal width for all 7 day columns */
+}
+
+/* Highlight today's date with a green glowing rectangle */
+.day-cell.today {
+  background-color: rgba(144, 238, 144, 0.3);
+  border: 2px solid #4CAF50;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
+}
+
+/* Make all day cells have consistent styling */
+.day-cell .day-cell-content {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Make the dates slightly smaller */
+.day-cell:nth-child(2) .day-cell-content {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Ensure weekend days (FRI, SAT) have the same color as other days */
+.day-cell {
+  color: #333 !important; /* Override any browser default styling */
+}
+
+/* iPad-specific optimizations */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .day-header {
+    padding: 5px 0;
+  }
+  
+  .day-cell {
+    padding: 5px 4px;
+    font-size: 0.9rem;
+  }
+  
+  .day-cell.today {
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+  }
+}

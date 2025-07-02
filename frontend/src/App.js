@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RosterView from './components/RosterView';
 import Pagination from './components/Pagination';
+import useSwipe from './hooks/useSwipe'; // Import the swipe hook
 import './styles/App.css';
 
 function App() {
@@ -9,7 +10,8 @@ function App() {
   const [totalWeeks, setTotalWeeks] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
+  const [lastRefreshTime, setLastRefreshTime] = useState(null);
+  const [selectedName, setSelectedName] = useState(null); // Add state for selected name
 
   // We're simplifying the approach - we'll just pass the raw data to the RosterView component
 
@@ -55,6 +57,9 @@ function App() {
       
       // Look for date cells in the first few rows of this week
       let foundDateInWeek = false;
+      let weekStartDate = null;
+      let weekEndDate = null;
+      
       for (let j = 0; j < Math.min(10, weekRows.length); j++) {
         const row = weekRows[j];
         
@@ -67,22 +72,44 @@ function App() {
           if (cellStr.match(/\d{4}-\d{2}-\d{2}T00:00:00/)) {
             const dateInCell = new Date(cellStr);
             
-            // If this date is in the current week (within 3 days before or after today)
-            const diffTime = Math.abs(dateInCell - today);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays <= 3) {
-              currentWeekIndex = i;
-              foundDateInWeek = true;
-              break;
+            // Track the earliest and latest dates in this week section
+            if (weekStartDate === null || dateInCell < weekStartDate) {
+              weekStartDate = dateInCell;
+            }
+            if (weekEndDate === null || dateInCell > weekEndDate) {
+              weekEndDate = dateInCell;
             }
           }
         }
-        
-        if (foundDateInWeek) break;
       }
       
-      if (foundDateInWeek) break;
+      // If we found dates for this week, check if today falls within or is closest to this week
+      if (weekStartDate && weekEndDate) {
+        // Add one day to weekEndDate to include the full day
+        weekEndDate.setDate(weekEndDate.getDate() + 1);
+        
+        // Check if today is within this week's range
+        if (today >= weekStartDate && today < weekEndDate) {
+          currentWeekIndex = i;
+          break;
+        }
+        
+        // If we're past the last date in this week and there are more weeks,
+        // check if we should move to the next week
+        if (today >= weekEndDate && i < weekSeparators.length - 1) {
+          // Check the next week's start date if available
+          continue; // Continue to check the next week
+        }
+        
+        // If we're before the first date in this week and this isn't the first week,
+        // we should be in the previous week
+        if (today < weekStartDate && i > 0) {
+          continue; // Continue to check other weeks
+        }
+        
+        // If we haven't broken out of the loop yet, this might be the closest week
+        currentWeekIndex = i;
+      }
     }
     
     return currentWeekIndex;
@@ -98,7 +125,8 @@ function App() {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
-        const response = await fetch("/api/schedule/", {
+        // Use the correct URL path with the /acr_schedule prefix
+        const response = await fetch("/acr_schedule/api/schedule/", {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -151,13 +179,11 @@ function App() {
     const refreshInterval = setInterval(() => {
       console.log('Performing scheduled refresh');
       fetchSchedule();
-    }, 60 * 60 * 1000); // Refresh every hour
+    }, 60 * 5 * 1000); // Refresh every 5 minutes
     
     return () => clearInterval(refreshInterval);
   }, []);
 
-
-  
   // Navigate to the next week
   const goToNext = () => {
     if (currentWeekIndex < totalWeeks - 1) {
@@ -172,15 +198,24 @@ function App() {
     }
   };
 
+  // Use the swipe hook to enable swipe navigation on touchscreen devices
+  // Swipe left to go to next week, swipe right to go to previous week
+  useSwipe(
+    goToNext,    // onSwipeLeft
+    goToPrevious // onSwipeRight
+  );
+
   return (
-    <div className="container">
+    <div className="container" id="schedule-container">
       {loading && <div className="loading">Loading schedule data...</div>}
       {error && <div className="error">Error: {error}</div>}
       {(!loading && !error && scheduleData) ? (
         <>
           <RosterView 
             sheet={scheduleData} 
-            currentWeekIndex={currentWeekIndex} 
+            currentWeekIndex={currentWeekIndex}
+            selectedName={selectedName}
+            setSelectedName={setSelectedName}
           />
           {totalWeeks > 0 && (
             <Pagination 

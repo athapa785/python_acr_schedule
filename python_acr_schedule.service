@@ -1,0 +1,21 @@
+[Unit]
+Description=ACR Schedule Web Application Service
+Wants=local-fs.target network.target socks_proxy.service
+After=local-fs.target network.target socks_proxy.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+User=python_acr_schedule
+Group=python_acr_schedule
+WorkingDirectory=/var/www/python_acr_schedule/backend
+ExecStart=/var/www/python_acr_schedule/backend/venv/bin/uvicorn --port=8004 --timeout-graceful-shutdown 5 'backend.asgi:application'
+KillMode=process
+PrivateTmp=true
+StandardOutput=journal
+Restart=on-failure
+RestartSec=5s
+Environment=DJANGO_FORCE_SCRIPT_NAME=/acr_schedule
+Environment=DJANGO_DEBUG=False

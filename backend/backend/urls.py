@@ -7,10 +7,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schedule/', include('schedule.urls')),
-    
-    # Serve static files
-    *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
-    
-    # Serve React frontend for all other routes
-    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
+
+# Serve static files - Django will handle this when Apache doesn't
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Add catch-all route for SPA - Django will serve the React app
+# This will only be used if Apache doesn't handle the request first
+urlpatterns += [re_path(r'^.*$', TemplateView.as_view(template_name='index.html'))]
