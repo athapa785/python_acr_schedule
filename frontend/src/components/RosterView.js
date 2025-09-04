@@ -577,8 +577,8 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
                               } : {})}
                               title={isName ? 'Double-click or long-press to highlight this name' : ''}
                             >
-                              <span className="cell-content" style={textStyle}>{cellValue}</span>
                               {comment && <span className="comment-indicator" title="Click to view comment"></span>}
+                              <span className="cell-content" style={textStyle}>{cellValue}</span>
                               {visibleComment &&
                                visibleComment.blockIndex === blockIndex &&
                                visibleComment.rowIndex === rowIndex &&

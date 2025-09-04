@@ -6,8 +6,10 @@ def parse_excel_file(file_data):
     wb = openpyxl.load_workbook(filename=BytesIO(file_data), data_only=True)
     
     sheets_data = []
-    for sheet_name in wb.sheetnames:
-        sheet = wb[sheet_name]
+    # Only process the first worksheet
+    first_sheet_name = wb.sheetnames[0] if wb.sheetnames else None
+    if first_sheet_name:
+        sheet = wb[first_sheet_name]
         data = []
         for row in sheet.iter_rows(values_only=False):
             row_data = []
@@ -35,7 +37,7 @@ def parse_excel_file(file_data):
                     row_data.append(cell_value if cell_value is not None else "")
             data.append(row_data)
         sheets_data.append({
-            "name": sheet_name,
+            "name": first_sheet_name,
             "data": data
         })
     return sheets_data
