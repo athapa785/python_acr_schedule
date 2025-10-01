@@ -129,8 +129,8 @@ function App() {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
-        // LOCAL DEV: Use /api/schedule/ (proxy handles routing to Django)
-        const response = await fetch("/api/schedule/", {
+        // Use the correct URL path with the /acr_schedule prefix
+        const response = await fetch("/acr_schedule/api/schedule/", {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -206,18 +206,23 @@ function App() {
   // Jump back to the week that contains today
   const goToCurrentWeek = () => {
     setCurrentWeekIndex(todayWeekIndex);
-    setShowLegend(false); // Return to schedule view
   };
 
-  // Show legend page
+  // Show the legend page
   const showLegendPage = () => {
-    setPreviousWeekIndex(currentWeekIndex); // Save current week
+    setPreviousWeekIndex(currentWeekIndex);
     setShowLegend(true);
   };
 
-  // Return to schedule from legend
+  // Return to the schedule from legend
   const returnToSchedule = () => {
-    setCurrentWeekIndex(previousWeekIndex); // Restore previous week
+    setShowLegend(false);
+    setCurrentWeekIndex(previousWeekIndex);
+  };
+
+  // Go to current week from legend (navigate and close legend)
+  const goToCurrentWeekFromLegend = () => {
+    setCurrentWeekIndex(todayWeekIndex);
     setShowLegend(false);
   };
 
@@ -237,7 +242,7 @@ function App() {
           {showLegend ? (
             <Legend 
               onBack={returnToSchedule}
-              onGoToCurrentWeek={goToCurrentWeek}
+              onGoToCurrentWeek={goToCurrentWeekFromLegend}
             />
           ) : (
             <>

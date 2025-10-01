@@ -1,0 +1,381 @@
+.legend-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.legend-top-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.legend-nav-small {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.legend-nav-small:hover {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+.legend-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #4285f4 0%, #a0c4ff 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.legend-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.legend-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.95;
+  font-weight: 300;
+}
+
+.legend-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.legend-section {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.legend-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.legend-section h2 {
+  color: #333;
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.section-description {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.legend-visual {
+  flex-shrink: 0;
+  margin-right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 5px;
+}
+
+.example-cell {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 140px;
+  text-align: center;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Match actual schedule styling for EOIC */
+.eoic-cell {
+  background-color: rgba(144, 238, 144, 0.4) !important;
+  font-weight: 500;
+}
+
+/* Match actual schedule styling for operators */
+.operator-cell {
+  background-color: rgba(144, 238, 144, 0.2) !important;
+}
+
+/* White background for backup operators */
+.backup-cell {
+  background-color: white !important;
+}
+
+/* Comment indicator example */
+.comment-example {
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.example-comment-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #3498db;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Strikethrough example */
+.strikethrough-example {
+  color: #666;
+}
+
+.strikethrough-text {
+  text-decoration: line-through;
+}
+
+/* Yellow highlight example */
+.highlight-example {
+  background-color: #FFFF00 !important;
+  color: #000;
+  font-weight: 500;
+  min-height: 28px;
+}
+
+.legend-description {
+  flex: 1;
+}
+
+.legend-description h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  color: #444;
+  font-weight: 600;
+}
+
+.legend-description p {
+  margin: 0;
+  color: #555;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.legend-description strong {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Compact legend items for interactive features */
+.legend-item-compact {
+  margin-bottom: 15px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid rgba(66, 133, 244, 0.5);
+}
+
+.legend-item-compact:last-child {
+  margin-bottom: 0;
+}
+
+/* Footer section styling */
+.legend-footer {
+  background-color: #f0f4f8;
+  padding: 20px 25px 25px 25px;
+  border-radius: 6px;
+  border: none;
+}
+
+.legend-footer h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.source-link-container {
+  text-align: center;
+  margin: 25px 0;
+}
+
+.source-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: rgba(66, 133, 244, 0.8);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.source-link:hover {
+  background-color: #3367d6;
+  transform: scale(1.05);
+}
+
+.refresh-note {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.footer-note {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 20px;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+/* Navigation buttons */
+.legend-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.legend-nav-button {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.02);
+}
+
+.legend-nav-button.current-week-button {
+  background-color: rgba(66, 133, 244, 0.8);
+  color: white;
+  border: none;
+}
+
+.legend-nav-button.current-week-button:hover {
+  background-color: #3367d6;
+  transform: scale(1.02);
+}
+
+/* Responsive design for mobile */
+@media only screen and (max-width: 768px) {
+  .legend-container {
+    padding: 15px;
+  }
+
+  .legend-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .legend-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .legend-content {
+    padding: 20px;
+  }
+
+  .legend-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .legend-item {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .legend-visual {
+    margin-right: 0;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+
+  .example-cell {
+    width: 100%;
+  }
+
+  .legend-description h3 {
+    font-size: 1.1rem;
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+  }
+
+  .legend-navigation {
+    flex-direction: column;
+  }
+
+  .legend-nav-button {
+    width: 100%;
+  }
+}
+
+/* iPad optimizations */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .legend-container {
+    max-width: 95%;
+    padding: 20px;
+  }
+
+  .legend-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .legend-item {
+    padding: 18px;
+  }
+}

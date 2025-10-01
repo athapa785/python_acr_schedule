@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../styles/RosterView.css';
 import DayHeader from './DayHeader';
 
-function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName, goToCurrentWeek }) {
+function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName, goToCurrentWeek, onShowLegend, onNext, onPrevious, totalWeeks }) {
   // Display columns for the full week (Monday through Sunday), excluding the first column
   const displayColCount = 8; // 7 days plus one less to skip the first column
   const [visibleComment, setVisibleComment] = useState(null);
@@ -484,6 +484,15 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
   return (
     <div className="roster-view">
       <div className="week-header">
+        {onShowLegend && (
+          <button 
+            className="legend-link-button absolute-right" 
+            onClick={onShowLegend} 
+            title="View Schedule Guide"
+          >
+            ℹ️
+          </button>
+        )}
         <h2>{weekHeader}</h2>
         {weekDateRange && <div className="date-range" data-component-name="RosterView">{weekDateRange}</div>}
       </div>
@@ -521,18 +530,32 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
                         {row.slice(1, displayColCount + 1).map((cell, cellIndex) => {
                           let cellValue = '';
                           let comment = '';
+                          let bgColor = null;
                           if (cell && typeof cell === 'object' && 'value' in cell) {
                             cellValue = cell.value !== undefined ? String(cell.value) : '';
                             comment = cell.comment || '';
+                            bgColor = cell.bgColor || null;
                           } else {
                             cellValue = cell !== undefined ? String(cell) : '';
                             comment = '';
+                            bgColor = null;
                           }
                           
                           // Apply strike-through style if the cell has the "strike" flag
                           let textStyle = {};
                           if (cell && typeof cell === 'object' && cell.strike) {
                             textStyle = { textDecoration: 'line-through' };
+                          }
+                          
+                          // Cell container style (for background highlight)
+                          const cellStyle = {};
+                          if (bgColor) {
+                            cellStyle.backgroundColor = bgColor;
+                          }
+                          
+                          // Ensure text remains readable on yellow; optional tweak
+                          if (bgColor && bgColor.toUpperCase() === '#FFFF00') {
+                            cellStyle.color = '#000';
                           }
                           
                           // Format dates as MM-DD (removing the year and time)
@@ -562,6 +585,7 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
                                 ${comment ? 'cell-with-comment' : ''}
                                 ${isSelectedName ? 'selected-name' : ''}
                               `}
+                              style={cellStyle}
                               onClick={() => handleCellClick(blockIndex, rowIndex, cellIndex, comment)}
                               {...(isName ? {
                                 onDoubleClick: () => handleNameSelection(cellValue),
@@ -611,10 +635,26 @@ function RosterView({ sheet, currentWeekIndex = 0, selectedName, setSelectedName
       )}
       <div className="current-week-nav">
         <button 
+          className="nav-arrow-button" 
+          onClick={onPrevious}
+          disabled={currentWeekIndex <= 0}
+          aria-label="Previous week"
+        >
+          ←
+        </button>
+        <button 
           className="current-week-button" 
           onClick={goToCurrentWeek}
         >
           Go to Current Week
+        </button>
+        <button 
+          className="nav-arrow-button" 
+          onClick={onNext}
+          disabled={currentWeekIndex >= totalWeeks - 1}
+          aria-label="Next week"
+        >
+          →
         </button>
       </div>
     </div>

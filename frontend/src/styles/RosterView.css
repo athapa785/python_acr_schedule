@@ -6,7 +6,10 @@
   }
   
   .current-week-nav {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
     margin-top: 20px;
   }
   
@@ -16,6 +19,7 @@
     margin-bottom: 5px; /* Further reduced margin */
     padding-bottom: 3px; /* Further reduced padding */
     border-bottom: 2px solid #f0f0f0;
+    position: relative; /* For absolute positioning of legend button */
   }
   
   .week-header h2 {
@@ -24,6 +28,26 @@
     color: #555;
     font-size: 1.2rem; /* Smaller font */
     font-weight: normal; /* Unbold */
+  }
+  
+  .legend-link-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    color: rgba(66, 133, 244, 0.9);
+    border: none;
+    padding: 4px 8px;
+    margin: 0;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+  
+  .legend-link-button:hover {
+    transform: scale(1.1);
   }
   
   .shift-block {
@@ -149,18 +173,18 @@
   }
   
   .comment-indicator {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 8px;
-    height: 8px;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
     background-color: #3498db;
     border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+    flex-shrink: 0;
   }
   
   .cell-with-comment {
-    background-color: rgba(235, 245, 255, 0.5);
-    border: 1px solid rgba(52, 152, 219, 0.4);
+    background-color: rgba(235, 245, 255, 0); /* removed the background for now by dialing down the alpha, leaving this here just in case we want it back in the future */
   }
   
   .comment-tooltip {
@@ -316,6 +340,30 @@
     transform: scale(1.05);
   }
   
+  .nav-arrow-button {
+    display: none; /* Hidden by default on desktop */
+    background-color: rgba(66, 133, 244, 0.8);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .nav-arrow-button:hover:not(:disabled) {
+    background-color: #3367d6;
+    transform: scale(1.05);
+  }
+  
+  .nav-arrow-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
   /* iPad-specific optimizations */
   @media only screen and (min-width: 768px) and (max-width: 1024px) {
     .roster-view {
@@ -353,11 +401,22 @@
     
     .current-week-nav {
       margin: 8px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .nav-arrow-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .current-week-button {
       padding: 6px 12px;
       font-size: 13px;
+      margin: 0;
     }
     
     /* Adjust the comment tooltip size for iPad */
